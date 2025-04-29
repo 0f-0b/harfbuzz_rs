@@ -12,9 +12,9 @@ use crate::bindings::{
     hb_font_get_synthetic_slant, hb_font_get_v_extents, hb_font_get_variation_glyph,
     hb_font_reference, hb_font_set_funcs, hb_font_set_ppem, hb_font_set_scale,
     hb_font_set_synthetic_bold, hb_font_set_synthetic_slant, hb_font_set_variations, hb_font_t,
-    hb_glyph_extents_t, hb_position_t,
+    hb_glyph_extents_t, hb_ot_layout_get_baseline, hb_ot_metrics_get_position, hb_position_t,
 };
-use crate::common::{HarfbuzzObject, Owned, Shared};
+use crate::common::{Direction, HarfbuzzObject, Owned, Shared, Tag};
 pub use crate::draw_funcs::DrawFuncs;
 use crate::draw_funcs::DrawFuncsImpl;
 use crate::face::Face;
@@ -523,6 +523,40 @@ impl<'a> Font<'a> {
                 variations.len() as u32,
             )
         };
+    }
+
+    pub fn get_baseline(
+        &self,
+        baseline_tag: impl Into<Tag>,
+        direction: Direction,
+        script_tag: impl Into<Tag>,
+        language_tag: impl Into<Tag>,
+    ) -> Option<Position> {
+        let font = self.as_raw();
+        let baseline_tag = baseline_tag.into().0;
+        let direction = direction.to_raw();
+        let script_tag = script_tag.into().0;
+        let language_tag = language_tag.into().0;
+        let mut coord = 0;
+        let result = unsafe {
+            hb_ot_layout_get_baseline(
+                font,
+                baseline_tag,
+                direction,
+                script_tag,
+                language_tag,
+                &mut coord,
+            )
+        };
+        (result != 0).then_some(coord)
+    }
+
+    pub fn get_position(&self, metrics_tag: impl Into<Tag>) -> Option<Position> {
+        let font = self.as_raw();
+        let metrics_tag = metrics_tag.into().0;
+        let mut position = 0;
+        let result = unsafe { hb_ot_metrics_get_position(font, metrics_tag, &mut position) };
+        (result != 0).then_some(position)
     }
 }
 
