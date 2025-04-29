@@ -1,4 +1,5 @@
 use std::borrow::Borrow;
+use std::convert::Infallible;
 use std::ops::{Deref, DerefMut};
 
 /// A type to represent 4-byte SFNT tags.
@@ -185,6 +186,10 @@ impl Direction {
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Language(pub hb_language_t);
 
+impl Language {
+    pub const INVALID: Self = Self(std::ptr::null());
+}
+
 impl Default for Language {
     fn default() -> Language {
         Language(unsafe { hb_language_get_default() })
@@ -207,32 +212,23 @@ use crate::bindings::{
 };
 impl Display for Language {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let string = unsafe {
-            let char_ptr = hb_language_to_string(self.0);
-            if char_ptr.is_null() {
-                return Err(fmt::Error);
-            }
-            CStr::from_ptr(char_ptr)
+        let ptr = unsafe { hb_language_to_string(self.0) };
+        if !ptr.is_null() {
+            let s = unsafe { CStr::from_ptr(ptr) }
                 .to_str()
-                .expect("String representation of language is not valid utf8.")
-        };
-        write!(f, "{string}")
+                .expect("string representation of language is not valid UTF-8");
+            write!(f, "{s}")?;
+        }
+        Ok(())
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct InvalidLanguage;
-
 impl FromStr for Language {
-    type Err = InvalidLanguage;
-    fn from_str(s: &str) -> Result<Language, InvalidLanguage> {
+    type Err = Infallible;
+    fn from_str(s: &str) -> Result<Language, Infallible> {
         let len = std::cmp::min(s.len(), i32::MAX as _) as i32;
         let lang = unsafe { hb_language_from_string(s.as_ptr() as *mut _, len) };
-        if lang.is_null() {
-            Err(InvalidLanguage {})
-        } else {
-            Ok(Language(lang))
-        }
+        Ok(Language(lang))
     }
 }
 
