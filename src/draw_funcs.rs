@@ -367,11 +367,11 @@ mod tests {
     }
     impl DrawFuncs for TestDrawFuncs {
         fn move_to(&mut self, _st: &draw_funcs::DrawState, to_x: f32, to_y: f32) {
-            self.output.push_str(&format!("M {:} {:} ", to_x, to_y));
+            self.output.push_str(&format!("M {to_x} {to_y} "));
         }
 
         fn line_to(&mut self, _st: &draw_funcs::DrawState, to_x: f32, to_y: f32) {
-            self.output.push_str(&format!("L {:} {:} ", to_x, to_y));
+            self.output.push_str(&format!("L {to_x} {to_y} "));
         }
 
         fn quadratic_to(
@@ -382,10 +382,8 @@ mod tests {
             to_x: f32,
             to_y: f32,
         ) {
-            self.output.push_str(&format!(
-                "Q {:} {:}, {:} {:} ",
-                control_x, control_y, to_x, to_y
-            ));
+            self.output
+                .push_str(&format!("Q {control_x} {control_y}, {to_x} {to_y} "));
         }
 
         fn cubic_to(
@@ -399,8 +397,7 @@ mod tests {
             to_y: f32,
         ) {
             self.output.push_str(&format!(
-                "C {:} {:}, {:}, {:}, {:} {:} ",
-                control1_x, control1_y, control2_x, control2_y, to_x, to_y
+                "C {control1_x} {control1_y}, {control2_x}, {control2_y}, {to_x} {to_y} "
             ));
         }
 
