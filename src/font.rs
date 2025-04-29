@@ -456,7 +456,7 @@ impl<'a> Font<'a> {
         }
     }
 
-    pub fn draw_glyph<FuncsType>(&self, glyph: Glyph, drawfuncs: &FuncsType)
+    pub fn draw_glyph<FuncsType>(&self, glyph: Glyph, drawfuncs: &mut FuncsType)
     where
         FuncsType: 'a + Send + Sync + DrawFuncs + std::fmt::Debug,
     {
@@ -466,7 +466,7 @@ impl<'a> Font<'a> {
                 self.as_raw(),
                 glyph,
                 funcs_impl.as_raw(),
-                drawfuncs as *const _ as *mut std::ffi::c_void,
+                std::ptr::from_mut(drawfuncs).cast(),
             )
         };
     }
