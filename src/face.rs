@@ -1,3 +1,4 @@
+use std::mem::MaybeUninit;
 use std::os::raw::c_void;
 use std::ptr::NonNull;
 
@@ -8,7 +9,8 @@ use crate::bindings::{
     hb_blob_t, hb_face_create, hb_face_create_for_tables, hb_face_destroy, hb_face_get_empty,
     hb_face_get_glyph_count, hb_face_get_index, hb_face_get_upem, hb_face_reference,
     hb_face_reference_blob, hb_face_reference_table, hb_face_set_glyph_count, hb_face_set_upem,
-    hb_face_t, hb_ot_var_axis_info_t, hb_ot_var_get_axis_count, hb_ot_var_get_axis_infos, hb_tag_t,
+    hb_face_t, hb_ot_var_axis_info_t, hb_ot_var_find_axis_info, hb_ot_var_get_axis_count,
+    hb_ot_var_get_axis_infos, hb_tag_t,
 };
 use crate::blob::Blob;
 use crate::common::{HarfbuzzObject, Owned, Shared, Tag};
@@ -140,6 +142,15 @@ impl<'a> Face<'a> {
     /// Returns the number of glyphs contained in the face.
     pub fn glyph_count(&self) -> u32 {
         unsafe { hb_face_get_glyph_count(self.as_raw()) }
+    }
+
+    pub fn find_variation_axis_info(&self, axis_tag: impl Into<Tag>) -> Option<VariationAxisInfo> {
+        let font = self.as_raw();
+        let axis_tag = axis_tag.into().0;
+        let mut axis_info = MaybeUninit::<VariationAxisInfo>::uninit();
+        let result =
+            unsafe { hb_ot_var_find_axis_info(font, axis_tag, axis_info.as_mut_ptr().cast()) };
+        (result != 0).then(|| unsafe { axis_info.assume_init() })
     }
 
     pub fn get_variation_axis_infos(&self) -> Vec<VariationAxisInfo> {
