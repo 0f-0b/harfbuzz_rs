@@ -415,10 +415,10 @@ mod tests {
         path.push("testfiles/SourceSansVariable-Roman.ttf");
         let face = Face::from_file(path, 0).expect("Error reading font file.");
         let font = Font::new(face);
-        let shape = TestDrawFuncs {
+        let mut shape = TestDrawFuncs {
             output: String::new(),
         };
-        font.draw_glyph(2, &shape);
+        font.draw_glyph(2, &mut shape);
         println!("After");
         assert_eq!(shape.output, "M 10 0 L 246 660 L 274 660 L 510 0 L 476 0 L 338 396 Q 317 456, 298.5 510 Q 280 564, 262 626 L 258 626 Q 240 564, 221.5 510 Q 203 456, 182 396 L 42 0 L 10 0 ZM 112 236 L 112 264 L 405 264 L 405 236 L 112 236 Z");
     }
