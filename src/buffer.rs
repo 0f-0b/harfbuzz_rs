@@ -8,8 +8,8 @@ use crate::bindings::{
     hb_buffer_reference, hb_buffer_reverse, hb_buffer_reverse_range, hb_buffer_serialize_format_t,
     hb_buffer_serialize_glyphs, hb_buffer_set_cluster_level, hb_buffer_set_content_type,
     hb_buffer_set_direction, hb_buffer_set_language, hb_buffer_set_script, hb_buffer_t,
-    hb_glyph_flags_t, hb_glyph_info_get_glyph_flags, hb_glyph_info_t, hb_mask_t, hb_script_t,
-    hb_segment_properties_t, hb_var_int_t, HB_BUFFER_CLUSTER_LEVEL_CHARACTERS,
+    hb_glyph_flags_t, hb_glyph_info_get_glyph_flags, hb_glyph_info_t, hb_language_t, hb_mask_t,
+    hb_script_t, hb_segment_properties_t, hb_var_int_t, HB_BUFFER_CLUSTER_LEVEL_CHARACTERS,
     HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES,
     HB_BUFFER_CONTENT_TYPE_GLYPHS, HB_BUFFER_CONTENT_TYPE_UNICODE,
     HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS, HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS,
@@ -245,17 +245,12 @@ impl GenericBuffer {
         Direction::from_raw(unsafe { hb_buffer_get_direction(self.as_raw()) })
     }
 
-    pub(crate) fn set_language(&mut self, lang: Language) {
-        unsafe { hb_buffer_set_language(self.as_raw(), lang.0) }
+    pub(crate) fn set_language(&mut self, lang: hb_language_t) {
+        unsafe { hb_buffer_set_language(self.as_raw(), lang) }
     }
 
-    pub(crate) fn get_language(&self) -> Option<Language> {
-        let raw_lang = unsafe { hb_buffer_get_language(self.as_raw()) };
-        if raw_lang.is_null() {
-            None
-        } else {
-            Some(Language(raw_lang))
-        }
+    pub(crate) fn get_language(&self) -> hb_language_t {
+        unsafe { hb_buffer_get_language(self.as_raw()) }
     }
 
     pub(crate) fn set_script(&mut self, script: hb_script_t) {
@@ -719,13 +714,13 @@ impl UnicodeBuffer {
 
     /// Set the buffer language.
     pub fn set_language(mut self, lang: Language) -> UnicodeBuffer {
-        self.0.set_language(lang);
+        self.0.set_language(lang.0);
         self
     }
 
     /// Get the buffer language.
-    pub fn get_language(&self) -> Option<Language> {
-        self.0.get_language()
+    pub fn get_language(&self) -> Language {
+        Language(self.0.get_language())
     }
 
     /// Guess the segment properties (direction, language, script) for the
