@@ -251,7 +251,7 @@ impl Feature {
 /// # Arguments
 /// - `font` – a reference to the harfbuzz font used to shape the text.
 /// - `buffer` – a `UnicodeBuffer` that is filled with the text to be shaped and
-/// also contains metadata about the text in the form of segment properties.
+///   also contains metadata about the text in the form of segment properties.
 /// - `features` – a slice of additional features to activate
 pub fn shape(font: &Font<'_>, buffer: UnicodeBuffer, features: &[Feature]) -> GlyphBuffer {
     let buffer = buffer.guess_segment_properties();

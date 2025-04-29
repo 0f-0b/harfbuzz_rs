@@ -201,7 +201,7 @@ mod tests {
     #[test]
     fn test_face_from_table_func() {
         let face = Face::from_table_func(|table_tag| {
-            let content = format!("{}-table", table_tag);
+            let content = format!("{table_tag}-table");
             Some(content.into_bytes().into())
         });
 

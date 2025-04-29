@@ -937,7 +937,7 @@ impl fmt::Display for GlyphBuffer {
             self.serializer(None, SerializeFormat::Text, SerializeFlags::default());
         let mut string = String::new();
         serializer.read_to_string(&mut string).unwrap();
-        write!(fmt, "{}", string)?;
+        write!(fmt, "{string}")?;
         Ok(())
     }
 }

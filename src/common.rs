@@ -193,7 +193,7 @@ impl Default for Language {
 
 impl Debug for Language {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Language(\"{}\")", self)
+        write!(f, "Language(\"{self}\")")
     }
 }
 
@@ -216,7 +216,7 @@ impl Display for Language {
                 .to_str()
                 .expect("String representation of language is not valid utf8.")
         };
-        write!(f, "{}", string)
+        write!(f, "{string}")
     }
 }
 
@@ -353,7 +353,6 @@ impl<T: HarfbuzzObject> Shared<T> {
     }
 
     /// Creates a `Shared` by cloning a raw harfbuzz pointer.
-
     ///
     /// The original pointer can still be safely used but must be released at
     /// the end to avoid memory leaks.
@@ -507,8 +506,8 @@ mod tests {
     #[test]
     fn test_tag_debugging() {
         let tag = Tag::from_str("ABCD").unwrap();
-        assert_eq!("ABCD", format!("{}", tag));
-        assert_eq!("Tag('A', 'B', 'C', 'D')", format!("{:?}", tag));
+        assert_eq!("ABCD", format!("{tag}"));
+        assert_eq!("Tag('A', 'B', 'C', 'D')", format!("{tag:?}"));
     }
 
     #[test]
@@ -547,13 +546,13 @@ mod tests {
         }
 
         unsafe fn reference(&self) {
-            println!("referencing {:?}", self);
+            println!("referencing {self:?}");
             let rc = self.share_count.get();
             self.share_count.set(rc + 1);
         }
 
         unsafe fn dereference(&self) {
-            println!("dereferencing {:?}", self);
+            println!("dereferencing {self:?}");
             let rc = self.share_count.get();
             self.share_count.set(rc - 1);
         }

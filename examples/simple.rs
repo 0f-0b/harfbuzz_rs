@@ -39,8 +39,7 @@ fn main() {
         let y_offset = position.y_offset;
 
         println!(
-            "gid{:0>2?}={:0>2?}@{:>4?},{:?}+{:?}",
-            gid, cluster, x_advance, x_offset, y_offset
+            "gid{gid:0>2?}={cluster:0>2?}@{x_advance:>4?},{x_offset:?}+{y_offset:?}"
         );
     }
 }
