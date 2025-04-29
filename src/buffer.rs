@@ -8,17 +8,17 @@ use crate::bindings::{
     hb_buffer_reference, hb_buffer_reverse, hb_buffer_reverse_range, hb_buffer_serialize_format_t,
     hb_buffer_serialize_glyphs, hb_buffer_set_cluster_level, hb_buffer_set_content_type,
     hb_buffer_set_direction, hb_buffer_set_language, hb_buffer_set_script, hb_buffer_t,
-    hb_glyph_flags_t, hb_glyph_info_get_glyph_flags, hb_glyph_info_t, hb_mask_t,
-    hb_script_from_iso15924_tag, hb_script_t, hb_script_to_iso15924_tag, hb_segment_properties_t,
-    hb_var_int_t, HB_BUFFER_CLUSTER_LEVEL_CHARACTERS, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS,
-    HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES, HB_BUFFER_CONTENT_TYPE_GLYPHS,
-    HB_BUFFER_CONTENT_TYPE_UNICODE, HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS,
-    HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS, HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES,
-    HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS, HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES,
-    HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS, HB_BUFFER_SERIALIZE_FORMAT_JSON,
-    HB_BUFFER_SERIALIZE_FORMAT_TEXT, HB_GLYPH_FLAG_UNSAFE_TO_BREAK,
+    hb_glyph_flags_t, hb_glyph_info_get_glyph_flags, hb_glyph_info_t, hb_mask_t, hb_script_t,
+    hb_segment_properties_t, hb_var_int_t, HB_BUFFER_CLUSTER_LEVEL_CHARACTERS,
+    HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES,
+    HB_BUFFER_CONTENT_TYPE_GLYPHS, HB_BUFFER_CONTENT_TYPE_UNICODE,
+    HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS, HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS,
+    HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES, HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS,
+    HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES, HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS,
+    HB_BUFFER_SERIALIZE_FORMAT_JSON, HB_BUFFER_SERIALIZE_FORMAT_TEXT,
+    HB_GLYPH_FLAG_UNSAFE_TO_BREAK,
 };
-use crate::common::{Direction, HarfbuzzObject, Language, Owned, Script, Tag};
+use crate::common::{Direction, HarfbuzzObject, Language, Owned, Script};
 use crate::font::Position;
 
 use fmt::Formatter;
@@ -706,16 +706,15 @@ impl UnicodeBuffer {
         self.0.get_direction()
     }
 
-    /// Set the script from an ISO15924 tag.
-    pub fn set_script(mut self, script: Tag) -> UnicodeBuffer {
-        self.0
-            .set_script(unsafe { hb_script_from_iso15924_tag(script.0) });
+    /// Set the script.
+    pub fn set_script(mut self, script: Script) -> UnicodeBuffer {
+        self.0.set_script(script.0);
         self
     }
 
-    /// Get the ISO15924 script tag.
-    pub fn get_script(&self) -> Tag {
-        Tag(unsafe { hb_script_to_iso15924_tag(self.0.get_script()) })
+    /// Get the script.
+    pub fn get_script(&self) -> Script {
+        Script(self.0.get_script())
     }
 
     /// Set the buffer language.
