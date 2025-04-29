@@ -8,7 +8,7 @@ use crate::bindings::{
     hb_blob_t, hb_face_create, hb_face_create_for_tables, hb_face_destroy, hb_face_get_empty,
     hb_face_get_glyph_count, hb_face_get_index, hb_face_get_upem, hb_face_reference,
     hb_face_reference_blob, hb_face_reference_table, hb_face_set_glyph_count, hb_face_set_upem,
-    hb_face_t, hb_tag_t,
+    hb_face_t, hb_ot_var_axis_info_t, hb_ot_var_get_axis_count, hb_ot_var_get_axis_infos, hb_tag_t,
 };
 use crate::blob::Blob;
 use crate::common::{HarfbuzzObject, Owned, Shared, Tag};
@@ -142,7 +142,6 @@ impl<'a> Face<'a> {
         unsafe { hb_face_get_glyph_count(self.as_raw()) }
     }
 
-    #[cfg(variation_support)]
     pub fn get_variation_axis_infos(&self) -> Vec<VariationAxisInfo> {
         let mut count = unsafe { hb_ot_var_get_axis_count(self.as_raw()) };
         let mut vector: Vec<VariationAxisInfo> = Vec::with_capacity(count as usize);
@@ -154,7 +153,6 @@ impl<'a> Face<'a> {
     }
 }
 
-#[cfg(variation_support)]
 #[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
 pub struct VariationAxisInfo(pub hb_ot_var_axis_info_t);
