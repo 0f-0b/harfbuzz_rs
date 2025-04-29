@@ -8,9 +8,11 @@ use crate::bindings::{
     hb_font_get_glyph_extents, hb_font_get_glyph_from_name, hb_font_get_glyph_h_advance,
     hb_font_get_glyph_h_origin, hb_font_get_glyph_name, hb_font_get_glyph_v_advance,
     hb_font_get_glyph_v_origin, hb_font_get_h_extents, hb_font_get_nominal_glyph,
-    hb_font_get_parent, hb_font_get_ppem, hb_font_get_scale, hb_font_get_v_extents,
-    hb_font_get_variation_glyph, hb_font_reference, hb_font_set_funcs, hb_font_set_ppem,
-    hb_font_set_scale, hb_font_set_variations, hb_font_t, hb_glyph_extents_t, hb_position_t,
+    hb_font_get_parent, hb_font_get_ppem, hb_font_get_scale, hb_font_get_synthetic_bold,
+    hb_font_get_synthetic_slant, hb_font_get_v_extents, hb_font_get_variation_glyph,
+    hb_font_reference, hb_font_set_funcs, hb_font_set_ppem, hb_font_set_scale,
+    hb_font_set_synthetic_bold, hb_font_set_synthetic_slant, hb_font_set_variations, hb_font_t,
+    hb_glyph_extents_t, hb_position_t,
 };
 use crate::common::{HarfbuzzObject, Owned, Shared};
 pub use crate::draw_funcs::DrawFuncs;
@@ -20,7 +22,7 @@ pub use crate::font_funcs::FontFuncs;
 use crate::font_funcs::FontFuncsImpl;
 use crate::Variation;
 
-use std::ffi::CStr;
+use std::ffi::{c_int, CStr};
 use std::marker::PhantomData;
 
 pub type Glyph = u32;
@@ -243,6 +245,31 @@ impl<'a> Font<'a> {
 
     pub fn set_ppem(&mut self, x: u32, y: u32) {
         unsafe { hb_font_set_ppem(self.as_raw_mut(), x, y) };
+    }
+
+    pub fn synthetic_bold(&self) -> (f32, f32, bool) {
+        let font = self.as_raw();
+        let mut x_embolden = 0.0;
+        let mut y_embolden = 0.0;
+        let mut in_place = 0;
+        unsafe { hb_font_get_synthetic_bold(font, &mut x_embolden, &mut y_embolden, &mut in_place) }
+        (x_embolden, y_embolden, in_place != 0)
+    }
+
+    pub fn set_synthetic_bold(&mut self, x_embolden: f32, y_embolden: f32, in_place: bool) {
+        let font = self.as_raw_mut();
+        let in_place = in_place as c_int;
+        unsafe { hb_font_set_synthetic_bold(font, x_embolden, y_embolden, in_place) }
+    }
+
+    pub fn synthetic_slant(&self) -> f32 {
+        let font = self.as_raw();
+        unsafe { hb_font_get_synthetic_slant(font) }
+    }
+
+    pub fn set_synthetic_slant(&mut self, slant: f32) {
+        let font = self.as_raw_mut();
+        unsafe { hb_font_set_synthetic_slant(font, slant) }
     }
 
     /// Sets the font functions that this font will have from a value that
