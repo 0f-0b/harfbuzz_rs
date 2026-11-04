@@ -5692,3 +5692,319 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn hb_aat_layout_has_tracking(face: *mut hb_face_t) -> hb_bool_t;
 }
+#[doc = " hb_subset_serialize_link_t:\n @width: offsetSize in bytes\n @position: position of the offset field in bytes from\n            beginning of subtable\n @objidx: index of subtable\n\n Represents a link between two objects in the object graph\n to be serialized.\n\n Since: 10.2.0"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct hb_subset_serialize_link_t {
+    pub width: ::std::os::raw::c_uint,
+    pub position: ::std::os::raw::c_uint,
+    pub objidx: ::std::os::raw::c_uint,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hb_subset_serialize_link_t"]
+        [::std::mem::size_of::<hb_subset_serialize_link_t>() - 12usize];
+    ["Alignment of hb_subset_serialize_link_t"]
+        [::std::mem::align_of::<hb_subset_serialize_link_t>() - 4usize];
+    ["Offset of field: hb_subset_serialize_link_t::width"]
+        [::std::mem::offset_of!(hb_subset_serialize_link_t, width) - 0usize];
+    ["Offset of field: hb_subset_serialize_link_t::position"]
+        [::std::mem::offset_of!(hb_subset_serialize_link_t, position) - 4usize];
+    ["Offset of field: hb_subset_serialize_link_t::objidx"]
+        [::std::mem::offset_of!(hb_subset_serialize_link_t, objidx) - 8usize];
+};
+#[doc = " hb_subset_serialize_object_t:\n @head: start of object data\n @tail: end of object data\n @num_real_links: number of offset field in the object\n @real_links: array of offset info\n @num_virtual_links: number of objects that must be packed\n                     after current object in the final\n                     serialized order\n @virtual_links: array of virtual link info\n\n Represents an object in the object graph to be serialized.\n\n Since: 10.2.0"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct hb_subset_serialize_object_t {
+    pub head: *mut ::std::os::raw::c_char,
+    pub tail: *mut ::std::os::raw::c_char,
+    pub num_real_links: ::std::os::raw::c_uint,
+    pub real_links: *mut hb_subset_serialize_link_t,
+    pub num_virtual_links: ::std::os::raw::c_uint,
+    pub virtual_links: *mut hb_subset_serialize_link_t,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hb_subset_serialize_object_t"]
+        [::std::mem::size_of::<hb_subset_serialize_object_t>() - 48usize];
+    ["Alignment of hb_subset_serialize_object_t"]
+        [::std::mem::align_of::<hb_subset_serialize_object_t>() - 8usize];
+    ["Offset of field: hb_subset_serialize_object_t::head"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, head) - 0usize];
+    ["Offset of field: hb_subset_serialize_object_t::tail"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, tail) - 8usize];
+    ["Offset of field: hb_subset_serialize_object_t::num_real_links"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, num_real_links) - 16usize];
+    ["Offset of field: hb_subset_serialize_object_t::real_links"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, real_links) - 24usize];
+    ["Offset of field: hb_subset_serialize_object_t::num_virtual_links"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, num_virtual_links) - 32usize];
+    ["Offset of field: hb_subset_serialize_object_t::virtual_links"]
+        [::std::mem::offset_of!(hb_subset_serialize_object_t, virtual_links) - 40usize];
+};
+unsafe extern "C" {
+    pub fn hb_subset_serialize_or_fail(
+        table_tag: hb_tag_t,
+        hb_objects: *mut hb_subset_serialize_object_t,
+        num_hb_objs: ::std::os::raw::c_uint,
+    ) -> *mut hb_blob_t;
+}
+pub const HB_SUBSET_DEPEND_EDGE_FLAG_NONE: hb_subset_depend_edge_flags_t = 0;
+pub const HB_SUBSET_DEPEND_EDGE_FLAG_FROM_CONTEXT_POSITION: hb_subset_depend_edge_flags_t = 1;
+pub const HB_SUBSET_DEPEND_EDGE_FLAG_FROM_NESTED_CONTEXT: hb_subset_depend_edge_flags_t = 2;
+#[doc = " hb_subset_depend_edge_flags_t:\n @HB_SUBSET_DEPEND_EDGE_FLAG_NONE: No flags set.\n @HB_SUBSET_DEPEND_EDGE_FLAG_FROM_CONTEXT_POSITION: Edge from a multi-position\n   contextual rule (Context or ChainContext with inputCount > 1). Depend\n   extraction records edges based on what glyphs could statically be at each\n   position according to input coverage or class. However, at runtime lookups\n   within the rule are applied sequentially: a lookup at an earlier position\n   may transform the glyph at a later position, and two lookups at the same\n   position may interact such that one produces a glyph that another\n   immediately consumes as an \"intermediate\". A glyph that matches the static\n   coverage may therefore not persist at that position when the rule actually\n   fires, so this edge may not trigger during closure.\n @HB_SUBSET_DEPEND_EDGE_FLAG_FROM_NESTED_CONTEXT: Edge from a lookup invoked\n   within another contextual lookup. The outer context's requirements are not\n   propagated to this edge, so the edge may fire even when those requirements\n   are not met.\n\n Flags on dependency edges returned by hb_subset_depend_lookup_glyph() that\n mark edges which may produce expected over-approximation when computing\n closure via the depend graph, relative to\n hb_ot_layout_lookups_substitute_closure(). These flags help distinguish\n known limitations of static dependency analysis (expected over-approximation)\n from bugs (unexpected over-approximation).\n\n Since: 14.3.0"]
+pub type hb_subset_depend_edge_flags_t = ::std::os::raw::c_uint;
+#[doc = " hb_subset_depend_t:\n\n Data type for holding glyph dependency graphs.\n\n <warning>Highly experimental API. Subject to change.</warning>\n\n Since: 14.3.0"]
+#[repr(C)]
+#[derive(Debug)]
+pub struct hb_subset_depend_t {
+    _unused: [u8; 0],
+}
+#[doc = " hb_subset_depend_entry_t:\n @table_tag: Source table (e.g. GSUB, glyf, CFF, COLR, MATH).\n @dependent: Target glyph ID.\n @layout_tag: Feature tag for GSUB edges; 0 otherwise.\n @ligature_set_index: Index into the sets array for ligature component\n   glyphs, or #HB_CODEPOINT_INVALID if not a ligature edge.\n @context_set_index: Index into the sets array for context requirement\n   glyphs, or #HB_CODEPOINT_INVALID if none. Use hb_subset_depend_lookup_set()\n   to retrieve the set.\n @flags: Edge flags (#hb_subset_depend_edge_flags_t).\n\n A single dependency edge returned by hb_subset_depend_lookup_glyph().\n\n Since: 14.3.0"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct hb_subset_depend_entry_t {
+    pub table_tag: hb_tag_t,
+    pub dependent: hb_codepoint_t,
+    pub layout_tag: hb_tag_t,
+    pub ligature_set_index: hb_codepoint_t,
+    pub context_set_index: hb_codepoint_t,
+    pub flags: hb_subset_depend_edge_flags_t,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of hb_subset_depend_entry_t"]
+        [::std::mem::size_of::<hb_subset_depend_entry_t>() - 24usize];
+    ["Alignment of hb_subset_depend_entry_t"]
+        [::std::mem::align_of::<hb_subset_depend_entry_t>() - 4usize];
+    ["Offset of field: hb_subset_depend_entry_t::table_tag"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, table_tag) - 0usize];
+    ["Offset of field: hb_subset_depend_entry_t::dependent"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, dependent) - 4usize];
+    ["Offset of field: hb_subset_depend_entry_t::layout_tag"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, layout_tag) - 8usize];
+    ["Offset of field: hb_subset_depend_entry_t::ligature_set_index"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, ligature_set_index) - 12usize];
+    ["Offset of field: hb_subset_depend_entry_t::context_set_index"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, context_set_index) - 16usize];
+    ["Offset of field: hb_subset_depend_entry_t::flags"]
+        [::std::mem::offset_of!(hb_subset_depend_entry_t, flags) - 20usize];
+};
+unsafe extern "C" {
+    pub fn hb_subset_depend_from_face_or_fail(face: *mut hb_face_t) -> *mut hb_subset_depend_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_depend_lookup_glyph(
+        depend: *mut hb_subset_depend_t,
+        gid: hb_codepoint_t,
+        start_offset: ::std::os::raw::c_uint,
+        entry_count: *mut ::std::os::raw::c_uint,
+        entries: *mut hb_subset_depend_entry_t,
+    ) -> ::std::os::raw::c_uint;
+}
+unsafe extern "C" {
+    pub fn hb_subset_depend_lookup_set(
+        depend: *mut hb_subset_depend_t,
+        index: hb_codepoint_t,
+        out: *mut hb_set_t,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_depend_destroy(depend: *mut hb_subset_depend_t);
+}
+#[doc = " hb_subset_input_t:\n\n Things that change based on the input. Characters to keep, etc."]
+#[repr(C)]
+#[derive(Debug)]
+pub struct hb_subset_input_t {
+    _unused: [u8; 0],
+}
+#[doc = " hb_subset_plan_t:\n\n Contains information about how the subset operation will be executed.\n Such as mappings from the old glyph ids to the new ones in the subset."]
+#[repr(C)]
+#[derive(Debug)]
+pub struct hb_subset_plan_t {
+    _unused: [u8; 0],
+}
+pub const HB_SUBSET_FLAGS_DEFAULT: hb_subset_flags_t = 0;
+pub const HB_SUBSET_FLAGS_NO_HINTING: hb_subset_flags_t = 1;
+pub const HB_SUBSET_FLAGS_RETAIN_GIDS: hb_subset_flags_t = 2;
+pub const HB_SUBSET_FLAGS_DESUBROUTINIZE: hb_subset_flags_t = 4;
+pub const HB_SUBSET_FLAGS_NAME_LEGACY: hb_subset_flags_t = 8;
+pub const HB_SUBSET_FLAGS_SET_OVERLAPS_FLAG: hb_subset_flags_t = 16;
+pub const HB_SUBSET_FLAGS_PASSTHROUGH_UNRECOGNIZED: hb_subset_flags_t = 32;
+pub const HB_SUBSET_FLAGS_NOTDEF_OUTLINE: hb_subset_flags_t = 64;
+pub const HB_SUBSET_FLAGS_GLYPH_NAMES: hb_subset_flags_t = 128;
+pub const HB_SUBSET_FLAGS_NO_PRUNE_UNICODE_RANGES: hb_subset_flags_t = 256;
+pub const HB_SUBSET_FLAGS_NO_LAYOUT_CLOSURE: hb_subset_flags_t = 512;
+pub const HB_SUBSET_FLAGS_OPTIMIZE_IUP_DELTAS: hb_subset_flags_t = 1024;
+pub const HB_SUBSET_FLAGS_NO_BIDI_CLOSURE: hb_subset_flags_t = 2048;
+pub const HB_SUBSET_FLAGS_DOWNGRADE_CFF2: hb_subset_flags_t = 16384;
+pub const HB_SUBSET_FLAGS_CFF_IDENTITY_CHARSET: hb_subset_flags_t = 32768;
+#[doc = " hb_subset_flags_t:\n @HB_SUBSET_FLAGS_DEFAULT: all flags at their default value of false.\n @HB_SUBSET_FLAGS_NO_HINTING: If set hinting instructions will be dropped in\n the produced subset. Otherwise hinting instructions will be retained.\n @HB_SUBSET_FLAGS_RETAIN_GIDS: If set glyph indices will not be modified in\n the produced subset. If glyphs are dropped their indices will be retained\n as an empty glyph.\n @HB_SUBSET_FLAGS_DESUBROUTINIZE: If set and subsetting a CFF font the\n subsetter will attempt to remove subroutines from the CFF glyphs.\n @HB_SUBSET_FLAGS_NAME_LEGACY: If set non-unicode name records will be\n retained in the subset.\n @HB_SUBSET_FLAGS_SET_OVERLAPS_FLAG:\tIf set the subsetter will set the\n OVERLAP_SIMPLE flag on each simple glyph.\n @HB_SUBSET_FLAGS_PASSTHROUGH_UNRECOGNIZED: If set the subsetter will not\n drop unrecognized tables and instead pass them through untouched.\n @HB_SUBSET_FLAGS_NOTDEF_OUTLINE: If set the notdef glyph outline will be\n retained in the final subset.\n @HB_SUBSET_FLAGS_GLYPH_NAMES: If set the PS glyph names will be retained\n in the final subset.\n @HB_SUBSET_FLAGS_NO_PRUNE_UNICODE_RANGES: If set then the unicode ranges in\n OS/2 will not be recalculated.\n @HB_SUBSET_FLAGS_NO_LAYOUT_CLOSURE: If set do not perform glyph closure on layout\n substitution rules (GSUB). Since: 7.2.0.\n @HB_SUBSET_FLAGS_OPTIMIZE_IUP_DELTAS: If set perform IUP delta optimization on the\n remaining gvar table's deltas. Since: 8.5.0\n @HB_SUBSET_FLAGS_NO_BIDI_CLOSURE: If set do not pull mirrored versions of input\n codepoints into the subset. Since: 11.1.0\n @HB_SUBSET_FLAGS_IFTB_REQUIREMENTS: If set enforce requirements on the output subset\n to allow it to be used with incremental font transfer IFTB patches. Primarily,\n this forces all outline data to use long (32 bit) offsets. Since: EXPERIMENTAL\n @HB_SUBSET_FLAGS_RETAIN_NUM_GLYPHS: If this flag is set along side\n HB_SUBSET_FLAGS_RETAIN_GIDS then the number of glyphs in the font won't\n be reduced as a result of subsetting. If necessary empty glyphs will be\n included at the end of the font to keep the number of glyphs unchanged.\n @HB_SUBSET_FLAGS_DOWNGRADE_CFF2: If set and instantiating a variable font\n with all axes pinned, convert the output CFF2 table to CFF1. This enables\n compatibility with older renderers that don't support CFF2. Since: 13.0.0\n @HB_SUBSET_FLAGS_CFF_IDENTITY_CHARSET: If set and subsetting a CID-keyed CFF\n font, the output CFF charset will use sequential identity CIDs (CID = new\n GID) rather than preserving the original CIDs. Since: 14.3.0\n\n List of boolean properties that can be configured on the subset input.\n\n Since: 2.9.0"]
+pub type hb_subset_flags_t = ::std::os::raw::c_uint;
+pub const HB_SUBSET_SETS_GLYPH_INDEX: hb_subset_sets_t = 0;
+pub const HB_SUBSET_SETS_UNICODE: hb_subset_sets_t = 1;
+pub const HB_SUBSET_SETS_NO_SUBSET_TABLE_TAG: hb_subset_sets_t = 2;
+pub const HB_SUBSET_SETS_DROP_TABLE_TAG: hb_subset_sets_t = 3;
+pub const HB_SUBSET_SETS_NAME_ID: hb_subset_sets_t = 4;
+pub const HB_SUBSET_SETS_NAME_LANG_ID: hb_subset_sets_t = 5;
+pub const HB_SUBSET_SETS_LAYOUT_FEATURE_TAG: hb_subset_sets_t = 6;
+pub const HB_SUBSET_SETS_LAYOUT_SCRIPT_TAG: hb_subset_sets_t = 7;
+#[doc = " hb_subset_sets_t:\n @HB_SUBSET_SETS_GLYPH_INDEX: the set of glyph indexes to retain in the subset.\n @HB_SUBSET_SETS_UNICODE: the set of unicode codepoints to retain in the subset.\n @HB_SUBSET_SETS_NO_SUBSET_TABLE_TAG: the set of table tags which specifies tables that should not be\n subsetted.\n @HB_SUBSET_SETS_DROP_TABLE_TAG: the set of table tags which specifies tables which will be dropped\n in the subset.\n @HB_SUBSET_SETS_NAME_ID: the set of name ids that will be retained.\n @HB_SUBSET_SETS_NAME_LANG_ID: the set of name lang ids that will be retained.\n @HB_SUBSET_SETS_LAYOUT_FEATURE_TAG: the set of layout feature tags that will be retained\n in the subset.\n @HB_SUBSET_SETS_LAYOUT_SCRIPT_TAG: the set of layout script tags that will be retained\n in the subset. Defaults to all tags. Since: 5.0.0\n\n List of sets that can be configured on the subset input.\n\n Since: 2.9.1"]
+pub type hb_subset_sets_t = ::std::os::raw::c_uint;
+unsafe extern "C" {
+    pub fn hb_subset_input_create_or_fail() -> *mut hb_subset_input_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_reference(input: *mut hb_subset_input_t) -> *mut hb_subset_input_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_destroy(input: *mut hb_subset_input_t);
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_set_user_data(
+        input: *mut hb_subset_input_t,
+        key: *mut hb_user_data_key_t,
+        data: *mut ::std::os::raw::c_void,
+        destroy: hb_destroy_func_t,
+        replace: hb_bool_t,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_get_user_data(
+        input: *const hb_subset_input_t,
+        key: *mut hb_user_data_key_t,
+    ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_keep_everything(input: *mut hb_subset_input_t);
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_unicode_set(input: *mut hb_subset_input_t) -> *mut hb_set_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_glyph_set(input: *mut hb_subset_input_t) -> *mut hb_set_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_set(
+        input: *mut hb_subset_input_t,
+        set_type: hb_subset_sets_t,
+    ) -> *mut hb_set_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_old_to_new_glyph_mapping(input: *mut hb_subset_input_t)
+        -> *mut hb_map_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_get_flags(input: *mut hb_subset_input_t) -> hb_subset_flags_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_set_flags(input: *mut hb_subset_input_t, value: ::std::os::raw::c_uint);
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_pin_all_axes_to_default(
+        input: *mut hb_subset_input_t,
+        face: *mut hb_face_t,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_pin_axis_to_default(
+        input: *mut hb_subset_input_t,
+        face: *mut hb_face_t,
+        axis_tag: hb_tag_t,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_pin_axis_location(
+        input: *mut hb_subset_input_t,
+        face: *mut hb_face_t,
+        axis_tag: hb_tag_t,
+        axis_value: f32,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_get_axis_range(
+        input: *mut hb_subset_input_t,
+        axis_tag: hb_tag_t,
+        axis_min_value: *mut f32,
+        axis_max_value: *mut f32,
+        axis_def_value: *mut f32,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_input_set_axis_range(
+        input: *mut hb_subset_input_t,
+        face: *mut hb_face_t,
+        axis_tag: hb_tag_t,
+        axis_min_value: f32,
+        axis_max_value: f32,
+        axis_def_value: f32,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_axis_range_from_string(
+        str_: *const ::std::os::raw::c_char,
+        len: ::std::os::raw::c_int,
+        axis_min_value: *mut f32,
+        axis_max_value: *mut f32,
+        axis_def_value: *mut f32,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_axis_range_to_string(
+        input: *mut hb_subset_input_t,
+        axis_tag: hb_tag_t,
+        buf: *mut ::std::os::raw::c_char,
+        size: ::std::os::raw::c_uint,
+    );
+}
+unsafe extern "C" {
+    pub fn hb_subset_preprocess(source: *mut hb_face_t) -> *mut hb_face_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_or_fail(
+        source: *mut hb_face_t,
+        input: *const hb_subset_input_t,
+    ) -> *mut hb_face_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_execute_or_fail(plan: *mut hb_subset_plan_t) -> *mut hb_face_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_create_or_fail(
+        face: *mut hb_face_t,
+        input: *const hb_subset_input_t,
+    ) -> *mut hb_subset_plan_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_destroy(plan: *mut hb_subset_plan_t);
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_old_to_new_glyph_mapping(plan: *const hb_subset_plan_t) -> *mut hb_map_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_new_to_old_glyph_mapping(plan: *const hb_subset_plan_t) -> *mut hb_map_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_unicode_to_old_glyph_mapping(
+        plan: *const hb_subset_plan_t,
+    ) -> *mut hb_map_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_reference(plan: *mut hb_subset_plan_t) -> *mut hb_subset_plan_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_set_user_data(
+        plan: *mut hb_subset_plan_t,
+        key: *mut hb_user_data_key_t,
+        data: *mut ::std::os::raw::c_void,
+        destroy: hb_destroy_func_t,
+        replace: hb_bool_t,
+    ) -> hb_bool_t;
+}
+unsafe extern "C" {
+    pub fn hb_subset_plan_get_user_data(
+        plan: *const hb_subset_plan_t,
+        key: *mut hb_user_data_key_t,
+    ) -> *mut ::std::os::raw::c_void;
+}

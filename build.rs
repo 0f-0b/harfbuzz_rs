@@ -14,6 +14,7 @@ fn use_system_harfbuzz() -> bool {
 fn main() {
     if use_system_harfbuzz() {
         pkg_config::probe_library("harfbuzz").unwrap();
+        pkg_config::probe_library("harfbuzz-subset").unwrap();
         return;
     }
 
@@ -25,7 +26,7 @@ fn main() {
         .flag("-O2")
         .warnings(false)
         .include("harfbuzz/src")
-        .file("harfbuzz/src/harfbuzz.cc");
+        .file("harfbuzz/src/harfbuzz-subset.cc");
 
     if !target.contains("windows") {
         cfg.define("HAVE_PTHREAD", "1");
