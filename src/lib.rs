@@ -97,6 +97,7 @@ pub mod draw_funcs;
 mod face;
 mod font;
 pub mod font_funcs;
+pub mod set;
 pub mod subset;
 
 #[cfg(feature = "rusttype")]
@@ -111,6 +112,7 @@ pub use crate::buffer::*;
 pub use crate::common::*;
 pub use crate::face::*;
 pub use crate::font::*;
+pub use crate::set::Set;
 
 use std::ops::{Bound, RangeBounds};
 use std::os::raw::c_uint;

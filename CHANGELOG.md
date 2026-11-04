@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add font subsetting support: the new `subset` module provides `SubsetInput` and `SubsetFlags`, and `Face::subset` creates a subsetted face. HarfBuzz's subset library is now compiled as part of the bundled build and is linked via `harfbuzz-subset` when using the system HarfBuzz.
+- Add a `Set` wrapper for `hb_set_t` and the generic `Borrowed` / `BorrowedMut` smart pointers for objects borrowed from another HarfBuzz object
+- Add font subsetting support: the new `subset` module provides `SubsetInput`, `SubsetFlags` and `SubsetError`, and `Face::subset` creates a subsetted face. HarfBuzz's subset library is now compiled as part of the bundled build and is linked via `harfbuzz-subset` when using the system HarfBuzz.
 
 ## [3.0.1] - 2026-10-21
 

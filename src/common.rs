@@ -1,4 +1,5 @@
 use std::borrow::Borrow;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 /// A type to represent 4-byte SFNT tags.
@@ -475,6 +476,124 @@ impl<T: HarfbuzzObject> Owned<T> {
         self.into()
     }
 }
+
+/// A smart pointer to a HarfBuzz object that is borrowed from another object.
+///
+/// Some HarfBuzz objects hand out pointers to objects they own, e.g. the sets
+/// of a [`SubsetInput`](crate::subset::SubsetInput). A `Borrowed<'a, T>`
+/// represents such a pointer: it dereferences to `&T` and cannot outlive the
+/// borrow `'a` of the owning object, which guarantees that the object is not
+/// mutated while it is accessible through this pointer.
+///
+/// Internally it holds its own reference count on the object, so it stays
+/// valid even if it is moved around freely. Use [`BorrowedMut`] for mutable
+/// access.
+#[derive(Debug)]
+pub struct Borrowed<'a, T: HarfbuzzObject> {
+    object: T,
+    marker: PhantomData<&'a T>,
+}
+
+impl<T: HarfbuzzObject> Borrowed<'_, T> {
+    /// Creates a `Borrowed` from a raw pointer to an object owned by another
+    /// object.
+    ///
+    /// The reference count of the object is increased and released again when
+    /// the `Borrowed` is dropped.
+    ///
+    /// # Safety
+    ///
+    /// `raw` must point to a valid object that stays alive and is not mutated
+    /// for the lifetime `'a` chosen by the caller. Tie `'a` to a borrow of the
+    /// owner of the object to ensure this.
+    pub unsafe fn from_raw_borrowed(raw: *mut T::Raw) -> Self {
+        let object = T::from_raw(raw);
+        object.reference();
+        Borrowed {
+            object,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<T: HarfbuzzObject> Deref for Borrowed<'_, T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.object
+    }
+}
+
+impl<T: HarfbuzzObject> Drop for Borrowed<'_, T> {
+    fn drop(&mut self) {
+        unsafe { self.object.dereference() }
+    }
+}
+
+unsafe impl<T: HarfbuzzObject + Sync> Send for Borrowed<'_, T> {}
+unsafe impl<T: HarfbuzzObject + Sync> Sync for Borrowed<'_, T> {}
+
+/// A smart pointer to a HarfBuzz object that is mutably borrowed from another
+/// object.
+///
+/// This is the mutable counterpart of [`Borrowed`]: it dereferences to `&T` and
+/// `&mut T` and keeps the owning object exclusively borrowed for `'a`, so
+/// nothing else can access the object while it is mutated.
+///
+/// Like [`Borrowed`] it holds its own reference count on the object. This
+/// means that swapping the borrowed object with another one (e.g. using
+/// [`std::mem::swap`]) can not cause a double free: each pointer releases
+/// exactly the reference it acquired.
+#[derive(Debug)]
+pub struct BorrowedMut<'a, T: HarfbuzzObject> {
+    object: T,
+    marker: PhantomData<&'a mut T>,
+}
+
+impl<T: HarfbuzzObject> BorrowedMut<'_, T> {
+    /// Creates a `BorrowedMut` from a raw pointer to an object owned by
+    /// another object.
+    ///
+    /// The reference count of the object is increased and released again when
+    /// the `BorrowedMut` is dropped.
+    ///
+    /// # Safety
+    ///
+    /// `raw` must point to a valid object that stays alive and is not accessed
+    /// through any other path for the lifetime `'a` chosen by the caller. Tie
+    /// `'a` to a mutable borrow of the owner of the object to ensure this.
+    pub unsafe fn from_raw_borrowed(raw: *mut T::Raw) -> Self {
+        let object = T::from_raw(raw);
+        object.reference();
+        BorrowedMut {
+            object,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<T: HarfbuzzObject> Deref for BorrowedMut<'_, T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.object
+    }
+}
+
+impl<T: HarfbuzzObject> DerefMut for BorrowedMut<'_, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        &mut self.object
+    }
+}
+
+impl<T: HarfbuzzObject> Drop for BorrowedMut<'_, T> {
+    fn drop(&mut self) {
+        unsafe { self.object.dereference() }
+    }
+}
+
+unsafe impl<T: HarfbuzzObject + Send> Send for BorrowedMut<'_, T> {}
+unsafe impl<T: HarfbuzzObject + Sync> Sync for BorrowedMut<'_, T> {}
 
 impl<T: HarfbuzzObject> Drop for Owned<T> {
     fn drop(&mut self) {
